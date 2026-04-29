@@ -8,7 +8,7 @@ return {
     ---@module "fzf-lua"
     ---@type fzf-lua.Config|{}
     ---@diagnostic disable: missing-fields
-    -- enabled = not vim.g.vscode,
+    enabled = not vim.g.vscode,
     config = function(_, opts)
       -- Move the require inside config function
       opts.lsp = opts.lsp or {}

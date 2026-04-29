@@ -16,6 +16,9 @@ return {
     config = function()
       -- configuration
       require("nvim-treesitter-textobjects").setup {
+        move = {
+          set_jumps = true,
+        },
         select = {
           -- Automatically jump forward to textobj, similar to targets.vim
           lookahead = true,
@@ -46,6 +49,12 @@ return {
 
       -- keymaps
       -- You can use the capture groups defined in `textobjects.scm`
+      vim.keymap.set("n", "]a", function()
+        require("nvim-treesitter-textobjects.swap").swap_next "@parameter.inner"
+      end)
+      vim.keymap.set("n", "[a", function()
+        require("nvim-treesitter-textobjects.swap").swap_previous "@parameter.inner"
+      end)
       vim.keymap.set({ "x", "o" }, "am", function()
         require "nvim-treesitter-textobjects.select".select_textobject("@function.outer", "textobjects")
       end)
@@ -65,9 +74,27 @@ return {
       vim.keymap.set({ "x", "o" }, "ia", function()
         require("nvim-treesitter-textobjects.select").select_textobject("@parameter.inner", "textobjects")
       end)
-      -- vim.keymap.set("n", "<leader>A", function()
-      --   require("nvim-treesitter-textobjects.swap").swap_previous "@parameter.outer"
-      -- end)
+      vim.keymap.set({ "x", "o" }, "aa", function()
+        require("nvim-treesitter-textobjects.select").select_textobject("@parameter.outer", "textobjects")
+      end)
+      vim.keymap.set({ "n", "x", "o" }, "]m", function()
+        require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer", "textobjects")
+      end)
+      vim.keymap.set({ "n", "x", "o" }, "[m", function()
+        require("nvim-treesitter-textobjects.move").goto_previous_start("@function.outer", "textobjects")
+      end)
+      vim.keymap.set({ "n", "x", "o" }, "]M", function()
+        require("nvim-treesitter-textobjects.move").goto_next_end("@function.outer", "textobjects")
+      end)
+      vim.keymap.set({ "n", "x", "o" }, "[M", function()
+        require("nvim-treesitter-textobjects.move").goto_previous_end("@function.outer", "textobjects")
+      end)
+      vim.keymap.set({ "n", "x", "o" }, "]]", function()
+        require("nvim-treesitter-textobjects.move").goto_next_start("@class.outer", "textobjects")
+      end)
+      vim.keymap.set({ "n", "x", "o" }, "[[", function()
+        require("nvim-treesitter-textobjects.move").goto_previous_start("@class.outer", "textobjects")
+      end)
     end,
   }
 }

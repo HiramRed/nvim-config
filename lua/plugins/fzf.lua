@@ -29,6 +29,7 @@ return {
       vim.keymap.set('n', '<leader>dl', ':FzfLua diagnostics_document<cr>', { desc = 'Document Diagnostics' })
       vim.keymap.set('n', '<leader>wl', ':FzfLua diagnostics_workspace<cr>', { desc = 'Workspace Diagnostics' })
       vim.keymap.set('n', '<leader>ca', ':FzfLua lsp_code_actions<cr>', { desc = 'Code Actions' })
+      vim.keymap.set('n', '<leader>F', ':FzfLua grep regex<cr>', { desc = 'Grep' })
     end,
     opts = {}
   },

@@ -30,7 +30,7 @@ return {
           virt_text_pos = "eol",
           delay = 200,
         },
-        current_line_blame_formatter = " <author>: <summary>",
+        current_line_blame_formatter = " <author>, <author_time> · <summary>",
         on_attach = function()
           local gs = package.loaded.gitsigns
 

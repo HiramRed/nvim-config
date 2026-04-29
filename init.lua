@@ -14,7 +14,7 @@ vim.opt.packpath = vim.o.runtimepath
 -- set insert mode cursor block
 vim.o.guicursor = 'n-v-c-sm-i:block,ve:ver25,r-cr-o:hor20'
 
-vim.g.coc_enable = vim.g.vscode
+vim.g.coc_enable = false
 
 -- environment
 vim.g.vim_json_conceal = 0

@@ -94,3 +94,7 @@ end)
 vim.keymap.set({ "n" }, "<c-6>", function()
   vscode.action('workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup')
 end)
+
+vim.keymap.set({ "n" }, "<leader>ca", function()
+  vscode.action('editor.action.codeAction')
+end)

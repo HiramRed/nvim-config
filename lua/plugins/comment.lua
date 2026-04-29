@@ -4,7 +4,7 @@ return {
     "JoosepAlviste/nvim-ts-context-commentstring",
     lazy = true,
     opts = {
-      enable_autocmd = true,
+      enable_autocmd = false,
     },
   },
   -- comment

@@ -48,16 +48,27 @@ return {
         },
       })
 
-      -- Enable LSPs
-      vim.lsp.enable("vtsls", "vue_ls")
+      -- Lua LSP (disable auto-creation of .luarc.json)
+      vim.lsp.config("lua_ls", {
+        capabilities = capabilities,
+        settings = {
+          Lua = {
+            workspace = {
+              checkThirdParty = false,
+              -- 禁用自动创建 .luarc.json
+              maxPreload = 1000,
+              preloadFileSize = 100,
+            },
+            telemetry = { enable = false },
+          },
+        },
+      })
 
-      -- LSP key mappings
-      vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
-      vim.keymap.set("n", "<leader>u", vim.lsp.buf.declaration, { desc = "Go to declaration" })
-      vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
-      vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+      -- Enable LSPs
+      vim.lsp.enable("vtsls", "vue_ls", "lua_ls")
+
+      -- LSP key mappings (non-fzf ones)
       vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover documentation" })
-      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
       vim.keymap.set("n", "[g", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
       vim.keymap.set("n", "]g", vim.diagnostic.goto_next, { desc = "Next diagnostic" })

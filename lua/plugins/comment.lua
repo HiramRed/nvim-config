@@ -4,10 +4,9 @@ return {
     "JoosepAlviste/nvim-ts-context-commentstring",
     lazy = true,
     opts = {
-      enable_autocmd = false,
+      enable_autocmd = true,
     },
   },
-
   -- comment
   {
     "numToStr/Comment.nvim",
@@ -15,49 +14,53 @@ return {
       "JoosepAlviste/nvim-ts-context-commentstring",
     },
     config = function()
+      local function get_vue_commentstring()
+        local line = vim.api.nvim_get_current_line()
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        local lnum = cursor[1] - 1
+        local col = cursor[2]
+
+        -- Get all lines up to cursor
+        local lines = vim.api.nvim_buf_get_lines(0, 0, lnum, false)
+        local content = table.concat(lines, "\n")
+
+        -- Check if in <script> tag
+        if content:match("<script") and not content:match("</script>") then
+          return "// %s"
+        end
+
+        -- Check if in <style> tag
+        if content:match("<style") and not content:match("</style>") then
+          return "/* %s */"
+        end
+
+        -- Default to HTML comment for <template>
+        return "<!-- %s -->"
+      end
       require('Comment').setup({
-        ---Add a space b/w comment and the line
+
         padding = true,
-        ---Whether the cursor should stay at its position
         sticky = true,
-        ---Lines to be ignored while (un)comment
-        ignore = nil,
-        ---LHS of toggle mappings in NORMAL mode
         toggler = {
-            ---Line-comment toggle keymap
-            line = '<leader>cc',
-            ---Block-comment toggle keymap
-            block = '<leader>C',
+          line = '<leader>cc',
+          block = '<leader>C',
         },
-        ---LHS of operator-pending mappings in NORMAL and VISUAL mode
         opleader = {
-            ---Line-comment keymap
-            line = '<leader>c',
-            ---Block-comment keymap
-            block = '<leader>C',
+          line = '<leader>c',
+          block = '<leader>C',
         },
-        ---LHS of extra mappings
-        -- extra = {
-        --     ---Add comment on the line above
-        --     above = 'gcO',
-        --     ---Add comment on the line below
-        --     below = 'gco',
-        --     ---Add comment at the end of line
-        --     eol = 'gcA',
-        -- },
-        ---Enable keybindings
-        ---NOTE: If given `false` then the plugin won't create any mappings
         mappings = {
-            ---Operator-pending mapping; `gcc` `gbc` `gc[count]{motion}` `gb[count]{motion}`
-            basic = true,
-            ---Extra mapping; `gco`, `gcO`, `gcA`
-            extra = false,
+          basic = true,
+          extra = false,
         },
         ---Function to call before (un)comment
-        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
-        ---Function to call after (un)comment
-        post_hook = nil,
-      })
+        pre_hook = function(ctx)
+          local ft = vim.bo.filetype
+          if ft == "vue" then
+            return get_vue_commentstring()
+          end
+        end,
+    })
     end,
   },
 }

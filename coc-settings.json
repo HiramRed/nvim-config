@@ -1,0 +1,40 @@
+{
+    "diagnostic.enableSign": false,
+    /* vetur */
+    "vetur.useWorkspaceDependencies": true,
+
+    "vuter.ignoreProjectWarning": true,
+
+    "vetur.trace.server": "verbose",
+
+    "typescript.validate.enable": false,
+
+    // Enable preselect feature on neovim, default: `true` 
+    "suggest.enablePreselect": true,
+
+    // Add preview option to `completeopt`, default: `false`
+    "suggest.enablePreview": true,
+
+    "suggest.timeout": 1,
+
+    // completion automatically select the first completed
+    "suggest.noselect": false,
+
+    // "suggest.triggerAfterInsertEnter": true
+    "suggest.minTriggerInputLength": 1,
+
+    // Target to show hover information, default is floating window when possible.
+    "coc.preferences.hoverTarget": "preview",
+
+    // Auto close preview window on cursor move.,  default: `true`
+    "coc.preferences.previewAutoClose": true,
+
+    "git.enableGutters": true,
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m -Xlog:disable -javaagent:\"/Users/xhiram/.config/coc/extensions/coc-lombok-data/server/lombok.jar\""
+
+    "tsserver.watchOptions": {
+        "watchFile": "fixedPollingInterval",
+        "watchDirectory": "fixedPollingInterval",
+        "synchronousWatchDirectory": true
+    }
+}

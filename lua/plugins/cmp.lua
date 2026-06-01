@@ -1,8 +1,9 @@
--- Completion Configuration
+-- Completion Configuration (disabled, using blink.cmp)
 return {
   -- nvim-cmp
   {
     "hrsh7th/nvim-cmp",
+    enabled = false,
     event = "InsertEnter",
     dependencies = {
       "cmp-nvim-lsp",
@@ -80,24 +81,28 @@ return {
   -- cmp-nvim-lsp
   {
     "hrsh7th/cmp-nvim-lsp",
+    enabled = false,
   },
 
   -- cmp-buffer
   {
     "hrsh7th/cmp-buffer",
+    enabled = false,
   },
 
   -- cmp-path
   {
     "hrsh7th/cmp-path",
+    enabled = false,
   },
 
   -- cmp-cmdline
   {
     "hrsh7th/cmp-cmdline",
+    enabled = false,
   },
 
-  -- LuaSnip
+  -- LuaSnip (keep for blink.cmp)
   {
     "L3MON4D3/LuaSnip",
     dependencies = {
@@ -108,5 +113,6 @@ return {
   -- cmp_luasnip
   {
     "saadparwaiz1/cmp_luasnip",
+    enabled = false,
   },
 }

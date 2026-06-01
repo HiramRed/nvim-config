@@ -1,6 +1,8 @@
 return {
   {
     "ibhagwan/fzf-lua",
+    -- enabled = not vim.g.vscode,
+    enabled = false,  -- disabled in favor of telescope
     -- optional for icon support
     dependencies = { "nvim-tree/nvim-web-devicons" },
     -- or if using mini.icons/mini.nvim
@@ -8,7 +10,6 @@ return {
     ---@module "fzf-lua"
     ---@type fzf-lua.Config|{}
     ---@diagnostic disable: missing-fields
-    enabled = not vim.g.vscode,
     config = function(_, opts)
       -- Move the require inside config function
       opts.lsp = opts.lsp or {}
@@ -16,7 +17,8 @@ return {
       opts.lsp.jump1_action = require("fzf-lua.actions").file_edit
 
       require('fzf-lua').setup(opts)
-      vim.keymap.set('n', '<C-n>', ':FzfLua files resume=true<cr>', { silent = true })
+      -- vim.keymap.set('n', '<C-n>', ':FzfLua files resume=true<cr>', { silent = true })
+      vim.keymap.set('n', '<C-n>', ':FzfLua files', { silent = true })
 
       -- LSP keymaps
       vim.keymap.set('n', 'gr', ':FzfLua lsp_references<cr>', { desc = 'LSP References' })

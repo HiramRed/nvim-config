@@ -11,7 +11,10 @@ return {
       -- 快速文件跳转
       quickfile = { enabled = true },
       -- 更好的通知
-      notifier = { enabled = true },
+      notifier = {
+        enabled = true,
+        timeout = 3000,
+      },
       -- 搜索高亮
       words = { enabled = true },
       -- 状态列
@@ -26,6 +29,9 @@ return {
       { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
       { "<leader>F", function() Snacks.picker.grep() end, desc = "Grep" },
       { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
+      { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
+      { "<leader>sn", function() Snacks.picker.notifications() end, desc = "Notification History" },
+      { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
       -- lsp
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
@@ -35,6 +41,9 @@ return {
       { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
       { "<leader>so", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
       { "<leader>sO", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
+      -- git
+      { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
+      { "<leader>gl", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
     },
   },
 }

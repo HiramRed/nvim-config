@@ -57,7 +57,7 @@ return {
 
           -- Actions
           vim.keymap.set({ "n", "v" }, "<leader>z", gs.reset_hunk, { desc = "Revert current line/file hunk" })
-          vim.keymap.set("n", "<leader>gb", gs.blame_line, { desc = "Blame current line" })
+          vim.keymap.set("n", "<leader>gb", gs.blame, { desc = "Blame current line" })
           vim.keymap.set("n", "<leader>gd", gs.diffthis, { desc = "Diff this" })
           vim.keymap.set("n", "<leader>gp", gs.preview_hunk, { desc = "Preview hunk" })
         end,

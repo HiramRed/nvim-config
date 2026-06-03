@@ -30,10 +30,10 @@ return {
       { "<leader>F", function() Snacks.picker.grep() end, desc = "Grep" },
       { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
       { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
-      { "<leader>sn", function() Snacks.picker.notifications() end, desc = "Notification History" },
+      { "<leader>fn", function() Snacks.picker.notifications() end, desc = "Notification History" },
       { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
+      { "<leader>fk", function() Snacks.picker.keymaps() end, desc = "Keymaps" },
       -- lsp
-      { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
       { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
       { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },

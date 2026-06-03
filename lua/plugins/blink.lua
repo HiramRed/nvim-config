@@ -10,6 +10,7 @@ return {
         ["<C-p>"] = { "select_prev", "fallback" },
         ["<C-b>"] = { "scroll_documentation_up", "fallback" },
         ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+        ["<Tab>"] = { "accept", "fallback" },
       },
       appearance = {
         use_nvim_cmp_as_default = true,

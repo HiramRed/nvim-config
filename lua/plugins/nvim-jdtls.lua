@@ -10,6 +10,9 @@ local function get_jdtls_workspace_dir()
   return workspace_dir
 end
 
+-- Global state for JDTLS toggle
+_G.jdtls_enabled = false
+
 local function get_jdtls_config()
   -- Java 23 home (only for JDTLS, won't affect global JAVA_HOME)
   local java_home = "/opt/homebrew/Cellar/openjdk/23.0.2/libexec/openjdk.jdk/Contents/Home"
@@ -24,19 +27,30 @@ local function get_jdtls_config()
 
   local workspace_dir = get_jdtls_workspace_dir()
 
+  -- Lombok jar path (assumes lombok.jar is in ~/tool/)
+  -- Download lombok from: https://projectlombok.org/downloads/lombok.jar
+  local lombok_jar = vim.fn.expand("~/tool/lombok/lombok.jar")
+
+  -- VM args including Lombok support
+  local vmargs = {
+    "-javaagent:" .. lombok_jar,
+    "-Xbootclasspath/a:" .. lombok_jar,
+    "-Dlog.protocol=true",
+    "-Dlog.level=ALL",
+    "-Djdt.ls.core.preferLinkedResources=true",
+    "-Xmx4g",
+    "--add-modules=ALL-SYSTEM",
+    "--add-opens", "java.base/java.util=ALL-UNNAMED",
+    "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+  }
+
   local config = {
     cmd = {
       java_home .. "/bin/java",
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
-      "-Dlog.protocol=true",
-      "-Dlog.level=ALL",
-      "-Djdt.ls.core.preferLinkedResources=true",
-      "-Xmx4g",
-      "--add-modules=ALL-SYSTEM",
-      "--add-opens", "java.base/java.util=ALL-UNNAMED",
-      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+      unpack(vmargs),
       "-jar", launcher_jar,
       "-configuration", jdtls_home .. "/config_mac_arm",
       "-data", workspace_dir,
@@ -127,6 +141,9 @@ local function get_jdtls_config()
           },
           useBlocks = true,
         },
+        annotationProcessing = {
+          enabled = true,
+        },
       },
     },
     init_options = {
@@ -142,6 +159,22 @@ local function get_jdtls_config()
   return config
 end
 
+local function toggle_jdtls()
+  _G.jdtls_enabled = not _G.jdtls_enabled
+  if _G.jdtls_enabled then
+    local jdtls = require("jdtls")
+    local config = get_jdtls_config()
+    jdtls.start_or_attach(config)
+    vim.notify("JDTLS enabled", vim.log.levels.INFO)
+  else
+    local clients = vim.lsp.get_active_clients({ name = "jdtls" })
+    for _, client in ipairs(clients) do
+      client.stop()
+    end
+    vim.notify("JDTLS disabled", vim.log.levels.INFO)
+  end
+end
+
 return {
   -- nvim-jdtls: Java LSP client
   {
@@ -154,12 +187,17 @@ return {
     config = function()
       local jdtls = require("jdtls")
 
-      -- Autostart jdtls for Java files
+      -- Create command to toggle JDTLS
+      vim.api.nvim_create_user_command("JdtlsToggle", toggle_jdtls, { desc = "Toggle JDTLS" })
+
+      -- Autostart jdtls for Java files (only when enabled)
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "java",
         callback = function()
-          local config = get_jdtls_config()
-          jdtls.start_or_attach(config)
+          if _G.jdtls_enabled then
+            local config = get_jdtls_config()
+            jdtls.start_or_attach(config)
+          end
         end,
       })
 

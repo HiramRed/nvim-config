@@ -95,6 +95,10 @@ return {
       vim.keymap.set({ "n", "x", "o" }, "[[", function()
         require("nvim-treesitter-textobjects.move").goto_previous_start("@class.outer", "textobjects")
       end)
+      -- You can also use captures from other query groups like `locals.scm`
+      vim.keymap.set({ "x", "o" }, "as", function()
+        require "nvim-treesitter-textobjects.select".select_textobject("@local.scope", "locals")
+      end)
     end,
   }
 }

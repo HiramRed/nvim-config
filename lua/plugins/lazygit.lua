@@ -1,6 +1,7 @@
 return {
    "kdheepak/lazygit.nvim",
    lazy = true,
+   enabled = false,
    cmd = {
        "LazyGit",
        "LazyGitConfig",
@@ -16,6 +17,6 @@ return {
      -- require("telescope").load_extension("lazygit")
    end,
    keys = {
-     { "<leader>sg", "<cmd>LazyGit<cr>", desc = "LazyGit" }
+     -- { "<leader>sg", "<cmd>LazyGit<cr>", desc = "LazyGit" }
    }
  }

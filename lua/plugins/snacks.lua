@@ -19,6 +19,8 @@ return {
       words = { enabled = true },
       -- 状态列
       statuscolumn = { enabled = true },
+      -- Lazygit
+      lazygit = { enabled = true },
     },
     keys = {
       -- find
@@ -44,6 +46,8 @@ return {
       -- git
       { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
       { "<leader>gl", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
+      { "<leader>sg", function() Snacks.lazygit() end, desc = "Git Log File" },
+      { "<leader>gh", function() Snacks.lazygit.log_file() end, desc = "Git Log File" },
     },
   },
 }

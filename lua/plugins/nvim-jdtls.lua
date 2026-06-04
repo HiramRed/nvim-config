@@ -1,5 +1,348 @@
+-- Java Development Environment
+-- Includes: nvim-jdtls, nvim-dap, nvim-dap-ui, java-debug, vscode-java-test
+
+local function get_jdtls_workspace_dir()
+  local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+  local project_path = vim.fn.getcwd()
+  -- Create a hash based on the full project path to distinguish different projects
+  local hash = vim.fn.sha256(project_path)
+  local workspace_dir = vim.fn.stdpath("data") .. "/jdtls/workspaces/" .. project_name .. "_" .. string.sub(hash, 1, 8)
+  return workspace_dir
+end
+
+local function get_jdtls_config()
+  -- Java 23 home (only for JDTLS, won't affect global JAVA_HOME)
+  local java_home = "/opt/homebrew/Cellar/openjdk/23.0.2/libexec/openjdk.jdk/Contents/Home"
+
+  local java_version = "JavaSE-23"
+
+  -- JDTLS installation directory
+  local jdtls_home = vim.fn.expand("~/tool/jdt-language-server-1.54.0-202511200503")
+
+  -- Find the correct launcher jar
+  local launcher_jar = jdtls_home .. "/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar"
+
+  local workspace_dir = get_jdtls_workspace_dir()
+
+  local config = {
+    cmd = {
+      java_home .. "/bin/java",
+      "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+      "-Dosgi.bundles.defaultStartLevel=4",
+      "-Declipse.product=org.eclipse.jdt.ls.core.product",
+      "-Dlog.protocol=true",
+      "-Dlog.level=ALL",
+      "-Djdt.ls.core.preferLinkedResources=true",
+      "-Xmx4g",
+      "--add-modules=ALL-SYSTEM",
+      "--add-opens", "java.base/java.util=ALL-UNNAMED",
+      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+      "-jar", launcher_jar,
+      "-configuration", jdtls_home .. "/config_mac_arm",
+      "-data", workspace_dir,
+    },
+    root_dir = vim.fs.root(0, {".git", "mvnw", "gradlew", "pom.xml", "build.gradle"}),
+    settings = {
+      java = {
+        home = java_home,
+        project = {
+          preferLinkedResources = true,
+          outputPath = "bin",
+          sourcePaths = { "src" },
+          referencedLibraries = {},
+          importHint = true,
+        },
+        eclipse = {
+          downloadSources = true,
+          preference = {
+            createJavaSourceFoldersAtRoot = false,
+          },
+        },
+        configuration = {
+          updateBuildConfiguration = "automatic",
+          runtimes = {
+            {
+              name = java_version,
+              path = java_home,
+            }
+          }
+        },
+        maven = {
+          downloadSources = true,
+        },
+        implementationsCodeLens = {
+          enabled = true,
+        },
+        referencesCodeLens = {
+          enabled = true,
+        },
+        references = {
+          includeDecompiledSources = true,
+        },
+        inlayHints = {
+          parameterNames = {
+            enabled = "all",
+          },
+        },
+        format = {
+          enabled = true,
+          settings = {
+            url = vim.fn.stdpath("config") .. "/java-formatter.xml",
+            profile = "GoogleStyle",
+          },
+        },
+        signatureHelp = {
+          enabled = true,
+        },
+        completion = {
+          favoriteStaticMembers = {
+            "org.hamcrest.MatcherAssert.assertThat",
+            "org.hamcrest.Matchers.*",
+            "org.hamcrest.CoreMatchers.*",
+            "org.junit.jupiter.api.Assertions.*",
+            "java.util.Collections.*",
+            "java.util.Objects.*",
+            "java.util.Arrays.*",
+            "org.assertj.core.api.Assertions.*",
+            "org.assertj.core.api.Assumptions.*",
+            "org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*",
+            "org.springframework.test.web.servlet.result.MockMvcResultMatchers.*",
+          },
+        },
+        contentProvider = {
+          preferred = "fernflower",
+        },
+        extendedClientCapabilities = {
+          progressReportProvider = false,
+        },
+        sources = {
+          organizeImports = {
+            starThreshold = 9999,
+            staticStarThreshold = 9999,
+          },
+        },
+        codeGeneration = {
+          toString = {
+            template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}",
+          },
+          useBlocks = true,
+        },
+      },
+    },
+    init_options = {
+      bundles = {},
+    },
+    handlers = {
+      ["language/status"] = function(_, result)
+        vim.notify("JDTLS: " .. result.message, vim.log.levels.INFO)
+      end,
+    },
+  }
+
+  return config
+end
+
 return {
-  "mfussenegger/nvim-jdtls",
-  enabled = false,
-  ft = "java",
+  -- nvim-jdtls: Java LSP client
+  {
+    "mfussenegger/nvim-jdtls",
+    ft = "java",
+    dependencies = {
+      "nvim-dap",
+      "nvim-dap-ui",
+    },
+    config = function()
+      local jdtls = require("jdtls")
+
+      -- Autostart jdtls for Java files
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "java",
+        callback = function()
+          local config = get_jdtls_config()
+          jdtls.start_or_attach(config)
+        end,
+      })
+
+      -- Key mappings for Java-specific features
+      vim.api.nvim_create_autocmd("LspAttach", {
+        pattern = "*.java",
+        callback = function(event)
+          local opts = { buffer = event.buf, noremap = true, silent = true }
+
+          -- Use vim.lsp.buf functions instead of jdtls specific ones
+          -- Code actions
+          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+          vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, opts)
+
+          -- Organize imports (jdtls specific)
+          vim.keymap.set("n", "<leader>co", function()
+            jdtls.organize_imports()
+          end, opts)
+
+          -- Extract variables/methods (jdtls specific)
+          vim.keymap.set("n", "<leader>cv", function()
+            jdtls.extract_variable()
+          end, opts)
+          vim.keymap.set("v", "<leader>cv", function()
+            jdtls.extract_variable(true)
+          end, opts)
+          vim.keymap.set("n", "<leader>cm", function()
+            jdtls.extract_method()
+          end, opts)
+          vim.keymap.set("v", "<leader>cm", function()
+            jdtls.extract_method(true)
+          end, opts)
+
+          -- Go to test/implementation (jdtls specific)
+          vim.keymap.set("n", "<leader>gt", function()
+            jdtls.go_to_test()
+          end, opts)
+          -- vim.keymap.set("n", "<leader>i", function()
+          --   jdtls.go_to_implementation()
+          -- end, opts)
+
+          -- Super implementation (jdtls specific)
+          vim.keymap.set("n", "<leader>u", function()
+            jdtls.super_implementation()
+          end, opts)
+
+          -- -- Jdtls commands
+          -- vim.keymap.set("n", "<leader>jc", function()
+          --   jdtls.compile()
+          -- end, opts)
+          -- vim.keymap.set("n", "<leader>jr", function()
+          --   jdtls.update_project_config()
+          -- end, opts)
+        end,
+      })
+    end,
+  },
+
+  -- nvim-dap: Debug Adapter Protocol
+  {
+    "mfussenegger/nvim-dap",
+    ft = "java",
+    config = function()
+      local dap = require("dap")
+
+      -- Java debug configuration
+      dap.configurations.java = {
+        {
+          type = "java",
+          request = "launch",
+          name = "Launch Current File",
+          mainClass = function()
+            local path = vim.fn.expand("%:p")
+            local classname = vim.fn.fnamemodify(path, ":t:r")
+            return classname
+          end,
+          projectName = function()
+            return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+          end,
+          cwd = vim.fn.getcwd(),
+          console = "integratedTerminal",
+          stopOnEntry = false,
+          args = "",
+        },
+        {
+          type = "java",
+          request = "attach",
+          name = "Attach to Remote Debug",
+          hostName = "127.0.0.1",
+          port = 5005,
+        },
+      }
+
+      -- Key mappings for debugging
+      vim.keymap.set("n", "<leader>b", dap.toggle_breakpoint, { desc = "Toggle Breakpoint" })
+      vim.keymap.set("n", "<leader>dc", dap.continue, { desc = "Continue" })
+      vim.keymap.set("n", "<leader>di", dap.step_into, { desc = "Step Into" })
+      vim.keymap.set("n", "<leader>do", dap.step_over, { desc = "Step Over" })
+      vim.keymap.set("n", "<leader>dO", dap.step_out, { desc = "Step Out" })
+      vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open REPL" })
+      vim.keymap.set("n", "<leader>dl", dap.run_last, { desc = "Run Last" })
+      vim.keymap.set("n", "<leader>dx", dap.terminate, { desc = "Terminate" })
+
+      -- Debug UI controls
+      vim.keymap.set("n", "<leader>du", function()
+        require("dapui").toggle()
+      end, { desc = "Toggle Debug UI" })
+    end,
+  },
+
+  -- nvim-dap-ui: Debug UI
+  {
+    "rcarriga/nvim-dap-ui",
+    ft = "java",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-dap",
+    },
+    config = function()
+      local dapui = require("dapui")
+
+      dapui.setup({
+        icons = { expanded = "▾", collapsed = "▸", current_frame = "▸" },
+        mappings = {
+          expand = { "<CR>", "<2-LeftMouse>" },
+          open = "o",
+          remove = "d",
+          edit = "e",
+          repl = "r",
+          toggle = "t",
+        },
+        layouts = {
+          {
+            elements = {
+              { id = "scopes", size = 0.25 },
+              { id = "breakpoints", size = 0.25 },
+              { id = "stacks", size = 0.25 },
+              { id = "watches", size = 0.25 },
+            },
+            size = 40,
+            position = "left",
+          },
+          {
+            elements = {
+              { id = "repl", size = 0.5 },
+              { id = "console", size = 0.5 },
+            },
+            size = 10,
+            position = "bottom",
+          },
+        },
+        floating = {
+          max_height = nil,
+          max_width = nil,
+          border = "single",
+          mappings = {
+            close = { "q", "<Esc>" },
+          },
+        },
+        windows = { indent = 1 },
+        render = {
+          max_type_length = nil,
+          max_value_lines = 100,
+        },
+      })
+
+      -- Auto open/close dapui
+      local dap = require("dap")
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+      end
+    end,
+  },
+
+  -- nvim-nio: Required for dap-ui
+  {
+    "nvim-neotest/nvim-nio",
+    ft = "java",
+  },
 }

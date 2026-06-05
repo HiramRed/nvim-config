@@ -44,6 +44,19 @@ local function get_jdtls_config()
     "--add-opens", "java.base/java.lang=ALL-UNNAMED",
   }
 
+  local bundles = {}
+
+  vim.list_extend(
+    bundles,
+    vim.split(
+      vim.fn.glob(
+        vim.fn.stdpath("data")
+        .. "/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"
+      ),
+      "\n"
+    )
+  )
+
   local config = {
     cmd = {
       java_home .. "/bin/java",
@@ -147,7 +160,7 @@ local function get_jdtls_config()
       },
     },
     init_options = {
-      bundles = {},
+      bundles = bundles,
     },
     handlers = {
       ["language/status"] = function(_, result)
@@ -164,6 +177,11 @@ local function toggle_jdtls()
   if _G.jdtls_enabled then
     local jdtls = require("jdtls")
     local config = get_jdtls_config()
+    jdtls.setup_dap({
+      hotcodereplace = "auto",
+    })
+
+    -- require("jdtls.dap").setup_dap_main_class_configs()
     jdtls.start_or_attach(config)
     vim.notify("JDTLS enabled", vim.log.levels.INFO)
   else
@@ -260,6 +278,29 @@ return {
     config = function()
       local dap = require("dap")
 
+      vim.fn.sign_define("DapBreakpoint", {
+        text = "",
+        texthl = "DiagnosticSignError",
+      })
+
+      vim.fn.sign_define("DapStopped", {
+        text = "",
+        texthl = "DiagnosticSignWarn",
+      })
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "java",
+        callback = function()
+          vim.defer_fn(function()
+            if dap.configurations.java then
+              for _, config in ipairs(dap.configurations.java) do
+                config.console = "integratedTerminal"
+              end
+            end
+          end, 1000)
+        end,
+      })
+
       -- Java debug configuration
       dap.configurations.java = {
         {
@@ -294,12 +335,12 @@ return {
       vim.keymap.set("n", "<leader>di", dap.step_into, { desc = "Step Into" })
       vim.keymap.set("n", "<leader>do", dap.step_over, { desc = "Step Over" })
       vim.keymap.set("n", "<leader>dO", dap.step_out, { desc = "Step Out" })
-      vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open REPL" })
+      -- vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open REPL" })
       vim.keymap.set("n", "<leader>dl", dap.run_last, { desc = "Run Last" })
       vim.keymap.set("n", "<leader>dx", dap.terminate, { desc = "Terminate" })
 
       -- Debug UI controls
-      vim.keymap.set("n", "<leader>du", function()
+      vim.keymap.set("n", "<leader>ds", function()
         require("dapui").toggle()
       end, { desc = "Toggle Debug UI" })
     end,
@@ -339,11 +380,18 @@ return {
           },
           {
             elements = {
-              { id = "repl", size = 0.5 },
-              { id = "console", size = 0.5 },
+              -- { id = "repl", size = 0.2 },
+              { id = "console", size = 1 },
             },
-            size = 10,
+            size = 15,
             position = "bottom",
+          },
+          {
+            elements = {
+              { id = "repl", size = 1 },
+            },
+            size = 1,
+            position = "top",
           },
         },
         floating = {
@@ -361,16 +409,20 @@ return {
         },
       })
 
+      vim.keymap.set("n", "<leader>dh", function()
+        require("dap.ui.widgets").hover()
+      end)
+
       -- Auto open/close dapui
       local dap = require("dap")
       dap.listeners.after.event_initialized["dapui_config"] = function()
         dapui.open()
       end
       dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close()
+        -- dapui.close()
       end
       dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close()
+        -- dapui.close()
       end
     end,
   },

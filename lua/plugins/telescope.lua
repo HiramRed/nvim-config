@@ -1,7 +1,7 @@
 return {
   {
     'nvim-telescope/telescope.nvim', version = '*',
-    enabled = false,
+    enabled = true,
     dependencies = {
       'nvim-lua/plenary.nvim',
       -- optional but recommended
@@ -12,7 +12,7 @@ return {
       -- vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
       -- vim.keymap.set('n', '<leader>F', builtin.live_grep, { desc = 'Telescope live grep' })
       -- vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
-      -- vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = 'Telescope help tags' })
+      vim.keymap.set('n', '<leader>fm', builtin.marks, { desc = 'Telescope book marks' })
     end,
   },
 }

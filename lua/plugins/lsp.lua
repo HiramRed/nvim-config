@@ -65,6 +65,8 @@ return {
         },
       })
 
+      local opts = { noremap = true, silent = true }
+
       -- Enable LSPs
       vim.lsp.enable("vtsls", "vue_ls", "lua_ls")
 
@@ -73,6 +75,8 @@ return {
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
       vim.keymap.set("n", "[g", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
       vim.keymap.set("n", "]g", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+      vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, opts)
     end,
   },
 

@@ -13,13 +13,19 @@ return {
         ["<Tab>"] = { "accept", "fallback" },
       },
       appearance = {
-        use_nvim_cmp_as_default = true,
+        use_nvim_cmp_as_default = false,
         nerd_font_variant = "mono",
       },
+      signature = { enabled = true },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
       },
       completion = {
+        menu = {
+          draw = {
+            padding = 1,
+          },
+        },
         documentation = {
           auto_show = true,
           auto_show_delay_ms = 500,

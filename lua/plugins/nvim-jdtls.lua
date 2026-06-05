@@ -208,9 +208,6 @@ return {
           local opts = { buffer = event.buf, noremap = true, silent = true }
 
           -- Use vim.lsp.buf functions instead of jdtls specific ones
-          -- Code actions
-          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-          vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, opts)
 
           -- Organize imports (jdtls specific)
           vim.keymap.set("n", "<leader>co", function()

@@ -10,6 +10,17 @@ local function get_jdtls_workspace_dir()
   return workspace_dir
 end
 
+vim.api.nvim_create_user_command("JdtlsCleanWorkspace", function()
+  local workspace = get_jdtls_workspace_dir()
+
+  if vim.fn.isdirectory(workspace) == 1 then
+    vim.fn.delete(workspace, "rf")
+    print("Cleaned jdtls workspace: " .. workspace)
+  else
+    print("Workspace not found: " .. workspace)
+  end
+end, { desc = "Clean jdtls workspace for current project" })
+
 -- Global state for JDTLS toggle
 _G.jdtls_enabled = false
 
@@ -78,7 +89,7 @@ local function get_jdtls_config()
       "-configuration", jdtls_home .. "/config_mac_arm",
       "-data", workspace_dir,
     },
-    root_dir = vim.fs.root(0, {".git", "mvnw", "gradlew", "pom.xml", "build.gradle"}),
+    root_dir = vim.fs.root(0, { "pom.xml", "mvnw", "gradlew", "build.gradle" }),
     settings = {
       java = {
         home = java_home,

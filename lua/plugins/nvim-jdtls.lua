@@ -288,6 +288,12 @@ return {
     config = function()
       local dap = require("dap")
 
+      -- 配置终端行为
+      dap.defaults.fallback.terminal_win_cmd = function()
+        -- 在新垂直分割窗口中打开终端
+        return "vsplit new"
+      end
+
       vim.fn.sign_define("DapBreakpoint", {
         text = "",
         texthl = "DiagnosticSignError",

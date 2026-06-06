@@ -1,7 +1,10 @@
 return {
   {
     "saghen/blink.cmp",
-    dependencies = "rafamadriz/friendly-snippets",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+      "L3MON4D3/LuaSnip",
+    },
     version = "*",
     opts = {
       keymap = {
@@ -19,6 +22,13 @@ return {
       signature = { enabled = true },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
+        providers = {
+          snippets = {
+            opts = {
+              friendly_snippets = true,
+            },
+          },
+        },
       },
       completion = {
         menu = {
@@ -33,5 +43,15 @@ return {
       },
     },
     opts_extend = { "sources.default" },
+    config = function(_, opts)
+      require("blink.cmp").setup(opts)
+
+      -- 加载自定义 snippets
+      local luasnip = require("luasnip")
+      luasnip.config.setup({})
+
+      -- 加载 lua/snippets/ 目录下的 snippets
+      require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/lua/snippets" })
+    end,
   },
 }

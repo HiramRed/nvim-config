@@ -13,6 +13,27 @@ end
 -- Global state for JDTLS toggle
 _G.jdtls_enabled = false
 
+local function get_jdtls_bundles()
+  local bundles = {}
+
+  -- debug
+  vim.list_extend(
+    bundles,
+    vim.split(
+      vim.fn.glob(
+        vim.fn.stdpath("data")
+        .. "/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"
+      ),
+      "\n"
+    )
+  )
+
+  -- 添加 spring-boot jdtls 扩展 jar 包
+  vim.list_extend(bundles, require("spring_boot").java_extensions())
+
+  return bundles
+end
+
 local function get_jdtls_config()
   -- Java 23 home (only for JDTLS, won't affect global JAVA_HOME)
   local java_home = "/opt/homebrew/Cellar/openjdk/23.0.2/libexec/openjdk.jdk/Contents/Home"
@@ -44,18 +65,7 @@ local function get_jdtls_config()
     "--add-opens", "java.base/java.lang=ALL-UNNAMED",
   }
 
-  local bundles = {}
-
-  vim.list_extend(
-    bundles,
-    vim.split(
-      vim.fn.glob(
-        vim.fn.stdpath("data")
-        .. "/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"
-      ),
-      "\n"
-    )
-  )
+  local bundles = get_jdtls_bundles()
 
   local config = {
     cmd = {

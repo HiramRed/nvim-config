@@ -7,7 +7,7 @@ return {
       -- 大文件支持
       bigfile = { enabled = true },
       -- Dashboard 启动界面
-      dashboard = { enabled = true },
+      dashboard = { enabled = false },
       -- 快速文件跳转
       quickfile = { enabled = true },
       -- 更好的通知
@@ -46,7 +46,7 @@ return {
       { "<leader>fn", function() Snacks.picker.notifications() end, desc = "Notification History" },
       { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
       { "<leader>fk", function() Snacks.picker.keymaps() end, desc = "Keymaps" },
-      { "<leader>fe", function() Snacks.picker.explorer() end, desc = "Explorer" },
+      -- { "<leader>fe", function() Snacks.picker.explorer() end, desc = "Explorer" },
       -- lsp
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
       { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },

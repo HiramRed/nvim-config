@@ -305,10 +305,19 @@ return {
     config = function()
       local dap = require("dap")
 
+      -- _G.dap_status = function()
+      --   if dap.session() then
+      --     return " 🐞 DAP"
+      --   end
+      --   return ""
+      -- end
+
+      -- vim.o.statusline = "%f%m%r%h%w %= %{v:lua.dap_status()} %y %l:%c"
+
       -- 配置终端行为
       dap.defaults.fallback.terminal_win_cmd = function()
         -- 在新垂直分割窗口中打开终端
-        return "vsplit new"
+        return "botright 15new term://zsh"
       end
 
       vim.fn.sign_define("DapBreakpoint", {

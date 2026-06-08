@@ -11,7 +11,7 @@ return {
     config = function()
       require("mason").setup()
       require("mason-lspconfig").setup({
-        ensure_installed = { "vtsls", "vue_ls" },
+        ensure_installed = { "vtsls", "vue_ls", "eslint" },
       })
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
@@ -34,11 +34,16 @@ return {
       -- TypeScript/JavaScript (ts_ls is the new name for tsserver)
       vim.lsp.config("vtsls", {
         capabilities = capabilities,
-        filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+        filetypes = {
+          "typescript",
+          "javascript",
+          "javascript.jsx",
+          "typescript.jsx",
+          "javascriptreact",
+          "typescriptreact",
+          "vue",
+        },
         settings = {
-          vue = {
-            target = 2,
-          },
           vtsls = {
             tsserver = {
               globalPlugins = {
@@ -47,6 +52,22 @@ return {
             },
           },
         },
+      })
+
+      vim.lsp.config("eslint", {
+        capabilities = capabilities,
+        filetypes = {
+          "javascript", "javascriptreact", "javascript.jsx",
+          "typescript", "typescriptreact", "typescript.tsx",
+          "vue", "css", "html", "json", "jsonc", "yaml"
+        },
+        -- on_attach = function(client, bufnr)
+        --   -- 监听 BufWritePre 事件（保存前触发）
+        --   vim.api.nvim_create_autocmd("BufWritePre", {
+        --     buffer = bufnr,     -- 只针对当前 buffer 生效
+        --     command = "LspEslintFixAll", -- 执行 ESLint 提供的修复命令
+        --   })
+        -- end,
       })
 
       -- Lua LSP (disable auto-creation of .luarc.json)
@@ -69,6 +90,8 @@ return {
 
       -- Enable LSPs
       vim.lsp.enable("vtsls", "vue_ls", "lua_ls")
+
+      vim.api.nvim_create_user_command('LspInfo', ':checkhealth vim.lsp', { desc = 'Alias to `:checkhealth vim.lsp`' })
 
       -- LSP key mappings (non-fzf ones)
       vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover documentation" })

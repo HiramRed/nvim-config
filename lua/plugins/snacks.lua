@@ -37,7 +37,7 @@ return {
       { "<leader>.", function() Snacks.dashboard() end, desc = "Dashboard" },
       { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
       -- { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
-      { "<leader>ff", function() Snacks.picker.smart({ hidden = true,  ignored = true }) end, desc = "Smart Find Files" },
+      { "<leader>ff", function() Snacks.picker.smart({ hidden = true,  ignored = false }) end, desc = "Smart Find Files" },
       -- { "<leader>ff", function() Snacks.picker.files({ hidden = true,  ignored = true }) end, desc = "Smart Find Files" },
       { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
       { "<leader>F", function() Snacks.picker.grep() end, desc = "Grep" },

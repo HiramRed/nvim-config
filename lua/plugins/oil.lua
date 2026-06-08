@@ -10,7 +10,7 @@ return {
     lazy = false,
     keys = {
       {
-        "<leader>fe",
+        "<leader>xd",
         function()
           require("oil").open()
         end,

@@ -89,10 +89,13 @@ local function get_jdtls_config()
       "-configuration", jdtls_home .. "/config_mac_arm",
       "-data", workspace_dir,
     },
-    root_dir = vim.fs.root(0, { "pom.xml", "mvnw", "gradlew", "build.gradle" }),
+    root_dir = vim.fs.root(0, { ".git", "pom.xml", "mvnw", "gradlew", "build.gradle" }),
     settings = {
       java = {
         home = java_home,
+        saveAction = {
+          organizeImports = false,
+        },
         project = {
           preferLinkedResources = true,
           outputPath = "bin",

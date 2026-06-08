@@ -91,6 +91,9 @@ local function get_jdtls_config()
     },
     root_dir = vim.fs.root(0, { ".git", "pom.xml", "mvnw", "gradlew", "build.gradle" }),
     settings = {
+      dap = {
+        console = "integratedTerminal",
+      },
       java = {
         home = java_home,
         saveAction = {
@@ -400,10 +403,10 @@ return {
         layouts = {
           {
             elements = {
-              { id = "scopes", size = 0.25 },
-              { id = "breakpoints", size = 0.25 },
-              { id = "stacks", size = 0.25 },
-              { id = "watches", size = 0.25 },
+              { id = "scopes", size = 0.5 },
+              { id = "breakpoints", size = 0.5 },
+              -- { id = "stacks", size = 0.25 },
+              -- { id = "watches", size = 0.25 },
             },
             size = 40,
             position = "left",

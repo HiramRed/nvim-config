@@ -13,6 +13,7 @@ return {
           python = { "isort", "black" }, -- 可以链式调用，先 isort 再 black
           javascript = { "prettier" },
           typescript = { "prettier" },
+          java = { "clang-format" },
           vue = { "prettier" },
           css = { "prettier" },
           html = { "prettier" },
@@ -34,7 +35,7 @@ return {
       -- 在 Normal 模式下按 <leader>f 格式化当前文件
       vim.keymap.set({ "n", "v" }, "<leader>fm", function()
         conform.format({
-          lsp_fallback = true,
+          lsp_fallback = false,
           async = false, -- false 表示同步执行，格式化完成前会卡住一下；true 表示异步
           timeout_ms = 500,
         })
@@ -42,4 +43,3 @@ return {
     end,
   },
 }
-

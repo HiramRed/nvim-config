@@ -293,6 +293,17 @@ return {
           -- vim.keymap.set("n", "<leader>jr", function()
           --   jdtls.update_project_config()
           -- end, opts)
+          --
+          vim.keymap.set("n", "gx", function()
+            local line = vim.api.nvim_get_current_line()
+
+            local file, row = line:match("([%w_]+%.java):(%d+)")
+
+            if file and row then
+              vim.cmd("find " .. file)
+              vim.api.nvim_win_set_cursor(0, { tonumber(row), 0 })
+            end
+          end, { buffer = true })
         end,
       })
     end,
@@ -451,8 +462,10 @@ return {
         },
       })
 
+      local widgets = require("dap.ui.widgets")
+
       vim.keymap.set("n", "<leader>dh", function()
-        require("dap.ui.widgets").hover()
+        widgets.hover()
       end)
 
       -- Auto open/close dapui

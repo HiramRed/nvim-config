@@ -7,7 +7,7 @@ return {
   },
   config = function()
     require("nvim-dap-virtual-text").setup({
-      enabled = true,
+      enabled = false,
       enabled_commands = true,
       highlight_changed_variables = true,
       highlight_new_as_changed = false,

@@ -52,16 +52,13 @@ require("lazy").setup({
     { "xolox/vim-session", dependencies = { "xolox/vim-misc" } },
     { "xolox/vim-misc" },
 
-    -- surround
-    { "tpope/vim-surround" },
-
     -- coc.nvim - LSP (conditional loading)
-    {
-      "neoclide/coc.nvim",
-      branch = "release",
-      enabled = vim.g.coc_enable,
-      -- enabled = not vim.g.vscode,
-    },
+    -- {
+    --   "neoclide/coc.nvim",
+    --   branch = "release",
+    --   enabled = vim.g.coc_enable,
+    --   -- enabled = not vim.g.vscode,
+    -- },
 
     -- markdown preview
     {

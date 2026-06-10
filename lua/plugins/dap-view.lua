@@ -99,15 +99,15 @@ return {
         end,
       })
 
-      -- 可以手动清空命令行输出
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "dap-view-term",
-        },
-        callback = function(args)
-          vim.opt_local.modifiable = true
-        end,
-      })
+      -- -- 可以手动清空命令行输出
+      -- vim.api.nvim_create_autocmd("FileType", {
+      --   pattern = {
+      --     "dap-view-term",
+      --   },
+      --   callback = function(args)
+      --     vim.opt_local.modifiable = true
+      --   end,
+      -- })
 
       dap.listeners.before.attach.dap_view = function()
         dv.open()

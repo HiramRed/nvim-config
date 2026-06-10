@@ -35,6 +35,16 @@ return {
   opts = {
     close_if_last_window = false,
 
+    sources = {
+      "filesystem",
+      "git_status",
+    },
+
+    source_selector = {
+      winbar = true,
+      statusline = true,
+    },
+
     popup_border_style = "rounded",
 
     enable_git_status = true,
@@ -55,31 +65,47 @@ return {
         hide_hidden = false,
       },
 
+      commands = {
+        -- 自定义一个 trash 命令
+        trash = function(state)
+          local inputs = require("neo-tree.ui.inputs")
+          local node = state.tree:get_node()
+          local path = node.path
+
+          -- 弹出确认提示
+          inputs.confirm("Move to trash: " .. node.name .. "?", function(confirmed)
+            if not confirmed then
+              return
+            end
+
+            -- 使用 jobstart 异步调用 macOS 的 trash 命令
+            -- 注意：直接传 path 即可，vim.fn.jobstart 会正确处理带有空格的路径
+            vim.fn.jobstart({ "trash", path }, {
+              on_exit = function()
+                -- 删除完成后刷新 neo-tree 面板
+                require("neo-tree.sources.manager").refresh(state.name)
+              end,
+            })
+          end)
+        end,
+
+        -- 复写默认的 delete 命令，让它指向我们上面定义的 trash
+        delete = function(state)
+          state.commands.trash(state)
+        end,
+      },
+
       window = {
         mappings = {
-          --------------------------------------------------
-          -- NERDTree风格
-          --------------------------------------------------
-          ["o"] = "open",
-
-          -- ["p"] = "navigate_up",
-
-          --------------------------------------------------
-          -- 刷新
-          --------------------------------------------------
-          ["R"] = "refresh",
-
-          --------------------------------------------------
-          -- 隐藏文件
-          --------------------------------------------------
-          ["H"] = "toggle_hidden",
-
-          --------------------------------------------------
-          -- 搜索过滤
-          --------------------------------------------------
-          ["/"] = "fuzzy_finder",
-
-          ["<esc>"] = "cancel",
+          ["d"] = "delete",
+          ["u"] = "undo",
+          ["U"] = "restore_from_trash",
+          ["<Tab>"] = "select",
+          ["<C-;>"] = "clear_selection",
+          ["/"] = "",
+        },
+        fuzzy_finder_mappings = {
+          ["<S-CR>"] = "close_keep_filter",
         },
       },
     },

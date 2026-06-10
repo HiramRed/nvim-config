@@ -47,7 +47,7 @@ return {
         },
         win_config = {
           position = "left", -- 面板位置："left", "right", "top", "bottom"
-          width = 35, -- 面板宽度
+          width = 40, -- 面板宽度
         },
       },
 
@@ -77,7 +77,7 @@ return {
           layout = "diff2_horizontal", -- 最经典的左右对比
         },
         merge_tool = {
-          layout = "diff4_mixed", -- 解决合并冲突时，4窗口混合布局 (OURS, BASE, THEIRS, 结果)
+          layout = "diff3_horizontal", -- 解决合并冲突时，4窗口混合布局 (OURS, BASE, THEIRS, 结果)
         },
         file_history = {
           layout = "diff2_horizontal", -- 查看历史时，左右对比
@@ -89,8 +89,13 @@ return {
         disable_defaults = false, -- 设为 true 可禁用默认快捷键
         view = {
           -- 在差异视图中，可以使用 <tab> 切换文件面板的展开/折叠
-          ["<tab>"] = require("diffview.actions").select_next_entry,
-          ["<s-tab>"] = require("diffview.actions").select_prev_entry,
+          -- ["<tab>"] = require("diffview.actions").select_next_entry,
+          -- ["<s-tab>"] = require("diffview.actions").select_prev_entry,
+        },
+        merge_tool = {
+          ["co"] = require("diffview.actions").conflict_choose("ours"),
+          ["ct"] = require("diffview.actions").conflict_choose("theirs"),
+          ["ca"] = require("diffview.actions").conflict_choose("all"),
         },
         file_panel = {
           ["j"] = require("diffview.actions").next_entry, -- 下一个文件

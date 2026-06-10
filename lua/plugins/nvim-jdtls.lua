@@ -138,13 +138,6 @@ local function get_jdtls_config()
             enabled = "all",
           },
         },
-        format = {
-          enabled = true,
-          settings = {
-            url = vim.fn.stdpath("config") .. "/java-formatter.xml",
-            profile = "GoogleStyle",
-          },
-        },
         signatureHelp = {
           enabled = true,
         },

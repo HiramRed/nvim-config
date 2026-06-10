@@ -56,10 +56,10 @@ return {
       { "<leader>fo", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
       { "<leader>fO", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
       -- git
-      { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
-      { "<leader>gl", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
+      -- { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
+      -- { "<leader>gl", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
       { "<leader>sg", function() Snacks.lazygit() end, desc = "Git Log File" },
-      { "<leader>gh", function() Snacks.lazygit.log_file() end, desc = "Git Log File" },
+      -- { "<leader>gh", function() Snacks.lazygit.log_file() end, desc = "Git Log File" },
     },
   },
 }

@@ -21,7 +21,8 @@ return {
       "kyazdani42/nvim-tree.lua",
       lazy = false,
       requires = "kyazdani42/nvim-web-devicons",
-      enabled = not vim.g.vscode,
+      -- enabled = not vim.g.vscode,
+      enabled = false,
       config = function(_, opts)
         -- NvimTree keymap
         require('nvim-tree').setup(opts)

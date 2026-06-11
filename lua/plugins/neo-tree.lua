@@ -98,10 +98,10 @@ return {
       window = {
         mappings = {
           ["d"] = "delete",
-          ["u"] = "undo",
-          ["U"] = "restore_from_trash",
-          ["<Tab>"] = "select",
-          ["<C-;>"] = "clear_selection",
+          -- ["u"] = "undo",
+          -- ["U"] = "restore_from_trash",
+          -- ["<Tab>"] = "select",
+          -- ["<C-;>"] = "clear_selection",
           ["/"] = "",
         },
         fuzzy_finder_mappings = {

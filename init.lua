@@ -57,3 +57,23 @@ vim.cmd('syntax on')
 if vim.g.vscode then
   dofile(vim.fn.expand('~/.config/nvim/lua/code.lua'))
 end
+
+-- 新无名buffer自动变为无痕buffer
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = vim.api.nvim_create_augroup("AutoScratch", { clear = true }),
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+
+    -- 判断条件：
+    -- 1. 没有文件名 (对应 :enew/:vnew 产生的空buffer)
+    -- 2. buftype 为空 (确保不是插件创建的特殊 buffer，如 floating window / prompt)
+    -- 3. 没有被修改过 (刚创建的纯洁状态)
+    if vim.api.nvim_buf_get_name(buf) == "" and vim.bo[buf].buftype == "" and not vim.bo[buf].modified then
+      vim.bo[buf].buflisted = false  -- 不进入 :ls 列表
+      vim.bo[buf].buftype = "nofile" -- 不可保存
+      vim.bo[buf].bufhidden = "hide" -- 隐藏而不删除
+      vim.bo[buf].swapfile = false   -- 无 swap 文件
+    end
+  end,
+})
+

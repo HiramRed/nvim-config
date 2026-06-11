@@ -18,7 +18,7 @@ return {
 
   keys = {
     -- 查看当前工作区/暂存区的变动 (git status & diff)
-    { "<leader>gs", "<cmd>DiffviewOpen<cr>", desc = "Git Diff (Status)" },
+    { "<leader>gS", "<cmd>DiffviewOpen<cr>", desc = "Git Diff (Status)" },
     -- 关闭 Diffview 面板
     { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Close Diffview" },
     -- 查看当前文件的历史变动记录

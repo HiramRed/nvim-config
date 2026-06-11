@@ -129,26 +129,28 @@ return {
         desc = "Toggle Dap View",
       })
 
-      vim.keymap.set({ "n" }, "<leader>dt", function ()
+      vim.keymap.set({ "n" }, "<leader>dt", function()
         dv.open()
         dv.jump_to_view("console")
       end, { desc = "Toggle Console" })
 
-      vim.keymap.set({ "n" }, "<leader>db", function ()
+      vim.keymap.set({ "n" }, "<leader>db", function()
         dv.open()
         dv.jump_to_view("breakpoints")
       end, { desc = "Toggle Breakpoint" })
 
-      vim.keymap.set({ "n" }, "<leader>dr", function ()
+      vim.keymap.set({ "n" }, "<leader>dr", function()
         dv.open()
         dv.jump_to_view("repl")
       end, { desc = "Toggle Repl" })
 
-      vim.keymap.set({ "n", "v" }, "<2-LeftMouse>", function ()
-        dv.hover(nil, true)
-      end, { desc = "Toggle Breakpoint" })
+      vim.keymap.set({ "n", "v" }, "<2-LeftMouse>", function()
+        if dap.session() then
+          dv.hover(nil, true)
+        end
+      end, { desc = "Toggle Breakpoint", buffer = true })
 
-      vim.keymap.set({ "n", "v" }, "<leader>da", function ()
+      vim.keymap.set({ "n", "v" }, "<leader>da", function()
         dv.hover(nil, true)
       end, { desc = "Toggle Breakpoint" })
     end,

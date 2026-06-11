@@ -11,6 +11,17 @@ vim.opt.runtimepath:append(vim.fn.expand('~/.vim'))
 vim.opt.runtimepath:append('/Applications/MacVim.app/Contents/Resources/vim/runtime')
 vim.opt.packpath = vim.o.runtimepath
 
+vim.opt.list = true -- 开启不可见字符显示
+
+-- 设置显示规则
+vim.opt.listchars = {
+  eol = ' ',       -- 显示真实的换行符
+  trail = '•',     -- 识别并显示行尾多余的空格
+  space = ' ',     -- 正常的单词间空格不显示（保持干净），若想显示可改为 '·'
+  tab = '→ ',      -- 显示 TAB 符
+  nbsp = '⦸',      -- 显示不换行空格
+}
+
 -- set insert mode cursor block
 vim.o.guicursor = 'n-v-c-sm-i:block,ve:ver25,r-cr-o:hor20'
 

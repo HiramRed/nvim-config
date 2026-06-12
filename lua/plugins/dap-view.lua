@@ -148,7 +148,7 @@ return {
         if dap.session() then
           dv.hover(nil, true)
         end
-      end, { desc = "Toggle Breakpoint", buffer = true })
+      end, { desc = "Toggle Hover" })
 
       vim.keymap.set({ "n", "v" }, "<leader>da", function()
         dv.hover(nil, true)

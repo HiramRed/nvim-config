@@ -11,6 +11,10 @@ vim.opt.runtimepath:append(vim.fn.expand('~/.vim'))
 vim.opt.runtimepath:append('/Applications/MacVim.app/Contents/Resources/vim/runtime')
 vim.opt.packpath = vim.o.runtimepath
 
+vim.opt.winminwidth = 20
+vim.opt.winheight = 20
+vim.opt.winminheight = 10
+
 vim.opt.list = true -- 开启不可见字符显示
 
 -- 设置显示规则

@@ -21,6 +21,8 @@ return {
         "scss",
         "rust",
         "java",
+        "markdown",
+        "markdown_inline",
       },
       sync_install = false,
       auto_install = true,

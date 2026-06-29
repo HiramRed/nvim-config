@@ -23,7 +23,7 @@ return {
       })
 
       -- 配置vtsls以支持Vue
-      local vue_language_server_path = vim.fn.stdpath('data') .. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
+      local vue_language_server_path = vim.fn.stdpath('data') .. "/mason/packages/vue-language-server/node_modules/@vue/typescript-plugin"
       local vue_plugin = {
         name = '@vue/typescript-plugin',
         location = vue_language_server_path,
@@ -96,8 +96,23 @@ return {
       -- LSP key mappings (non-fzf ones)
       vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover documentation" })
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
-      vim.keymap.set("n", "[g", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
-      vim.keymap.set("n", "]g", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+      -- Jump to diagnostics with severity priority: ERROR > WARN > INFO > HINT
+      local function diagnostic_goto(direction)
+        local severities = {
+          vim.diagnostic.severity.ERROR,
+          vim.diagnostic.severity.WARN,
+          vim.diagnostic.severity.INFO,
+          vim.diagnostic.severity.HINT,
+        }
+        local goto_fn = direction == "next" and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+        for _, sev in ipairs(severities) do
+          local ok, _ = pcall(goto_fn, { severity = { min = sev, max = sev } })
+          if ok then return end
+        end
+        vim.notify("No diagnostics found", vim.log.levels.INFO)
+      end
+      vim.keymap.set("n", "[g", function() diagnostic_goto("prev") end, { desc = "Previous diagnostic (error priority)" })
+      vim.keymap.set("n", "]g", function() diagnostic_goto("next") end, { desc = "Next diagnostic (error priority)" })
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
       vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, opts)
     end,

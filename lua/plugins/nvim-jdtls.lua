@@ -192,6 +192,19 @@ local function get_jdtls_config()
   return config
 end
 
+local function write_launch_json(filepath, configurations)
+  local vscode_dir = vim.fn.getcwd() .. "/.vscode"
+  if vim.fn.isdirectory(vscode_dir) == 0 then
+    vim.fn.mkdir(vscode_dir, "p")
+  end
+  local launch_json = {
+    version = "0.2.0",
+    configurations = configurations,
+  }
+  local json_str = vim.json.encode(launch_json, { indent = "  " })
+  vim.fn.writefile(vim.split(json_str, "\n"), filepath)
+end
+
 local function generate_launch_json()
   local clients = vim.lsp.get_active_clients({ name = "jdtls" })
   if #clients == 0 then
@@ -212,52 +225,79 @@ local function generate_launch_json()
       return
     end
 
-    local new_configs = {}
-    local jdtls_mainclasses = {}
-    for _, mc in ipairs(mainclasses) do
-      jdtls_mainclasses[mc.mainClass] = true
-      table.insert(new_configs, {
+    local function to_config(mc)
+      return {
         type = "java",
         request = "launch",
         name = mc.mainClass,
         mainClass = mc.mainClass,
         projectName = mc.projectName,
-      })
+      }
     end
 
-    local filepath = vim.fn.getcwd() .. "/.vscode/launch.json"
+    -- Build items: simple strings for labels, use index to look up mainclasses
+    -- "ALL" at index 0 means sync all
+    local items = { "[All] Add all (" .. #mainclasses .. " classes)" }
+    for _, mc in ipairs(mainclasses) do
+      table.insert(items, string.format("%-10s %s", mc.projectName or "", mc.mainClass))
+    end
 
-    -- Merge with existing launch.json if present
-    if vim.fn.filereadable(filepath) == 1 then
-      local ok, existing = pcall(vim.fn.json_decode, vim.fn.readfile(filepath))
-      if ok and existing and existing.configurations then
-        local merged_count = 0
-        for _, cfg in ipairs(existing.configurations) do
-          if not jdtls_mainclasses[cfg.mainClass] then
-            -- Preserve manually added or non-java configs
-            table.insert(new_configs, cfg)
-            merged_count = merged_count + 1
-          end
-        end
-        if merged_count > 0 then
-          vim.notify(string.format("Preserved %d existing non-Java/manual config(s)", merged_count), vim.log.levels.INFO)
+    vim.ui.select(items, {
+      prompt = "Select main class to add to launch.json:",
+    }, function(choice, idx)
+      if not choice or not idx then
+        return -- cancelled
+      end
+
+      local filepath = vim.fn.getcwd() .. "/.vscode/launch.json"
+      local existing_configs = {}
+
+      if vim.fn.filereadable(filepath) == 1 then
+        local ok, existing = pcall(vim.fn.json_decode, vim.fn.readfile(filepath))
+        if ok and existing and existing.configurations then
+          existing_configs = existing.configurations
         end
       end
-    end
 
-    local vscode_dir = vim.fn.getcwd() .. "/.vscode"
-    if vim.fn.isdirectory(vscode_dir) == 0 then
-      vim.fn.mkdir(vscode_dir, "p")
-    end
-
-    local launch_json = {
-      version = "0.2.0",
-      configurations = new_configs,
-    }
-    local json_str = vim.json.encode(launch_json, { indent = "  " })
-    vim.fn.writefile(vim.split(json_str, "\n"), filepath)
-    vim.notify(string.format("Wrote %d config(s) to .vscode/launch.json (%d from jdtls, %d preserved)",
-      #new_configs, #mainclasses, #new_configs - #mainclasses), vim.log.levels.INFO)
+      if idx == 1 then
+        -- [All]: sync all jdtls configs, preserve manual entries
+        local jdtls_mc = {}
+        local new_configs = {}
+        for _, mc in ipairs(mainclasses) do
+          jdtls_mc[mc.mainClass] = true
+          table.insert(new_configs, to_config(mc))
+        end
+        local preserved = 0
+        for _, cfg in ipairs(existing_configs) do
+          if cfg.mainClass and not jdtls_mc[cfg.mainClass] then
+            table.insert(new_configs, cfg)
+            preserved = preserved + 1
+          end
+        end
+        write_launch_json(filepath, new_configs)
+        vim.notify(string.format("Synced %d main class(es)%s to .vscode/launch.json",
+          #mainclasses, preserved > 0 and string.format(" (+ %d preserved)", preserved) or ""), vim.log.levels.INFO)
+      else
+        -- Single class: idx 2..N maps to mainclasses[1..]
+        local mc = mainclasses[idx - 1]
+        local new_config = to_config(mc)
+        local found = false
+        for i, cfg in ipairs(existing_configs) do
+          if cfg.mainClass and cfg.mainClass == mc.mainClass then
+            existing_configs[i] = new_config
+            found = true
+            break
+          end
+        end
+        if not found then
+          table.insert(existing_configs, new_config)
+          vim.notify(string.format("Added %s to .vscode/launch.json", mc.mainClass), vim.log.levels.INFO)
+        else
+          vim.notify(string.format("Updated %s in .vscode/launch.json", mc.mainClass), vim.log.levels.INFO)
+        end
+        write_launch_json(filepath, existing_configs)
+      end
+    end)
   end)
 end
 
@@ -350,7 +390,7 @@ return {
           end, opts)
 
           -- Generate .vscode/launch.json from discovered main classes
-          -- vim.keymap.set("n", "<leader>dg", generate_launch_json, vim.tbl_extend("force", opts, { desc = "Generate launch.json" }))
+          vim.keymap.set("n", "<leader>dg", generate_launch_json, vim.tbl_extend("force", opts, { desc = "Generate launch.json" }))
 
           -- -- Jdtls commands
           -- vim.keymap.set("n", "<leader>jc", function()

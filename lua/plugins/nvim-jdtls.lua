@@ -192,6 +192,75 @@ local function get_jdtls_config()
   return config
 end
 
+local function generate_launch_json()
+  local clients = vim.lsp.get_active_clients({ name = "jdtls" })
+  if #clients == 0 then
+    vim.notify("JDTLS is not running. Enable it with :JdtlsToggle first.", vim.log.levels.ERROR)
+    return
+  end
+
+  local params = {
+    command = "vscode.java.resolveMainClass",
+  }
+  clients[1]:request("workspace/executeCommand", params, function(err, mainclasses)
+    if err then
+      vim.notify("Failed to resolve main classes: " .. (err.message or vim.inspect(err)), vim.log.levels.ERROR)
+      return
+    end
+    if not mainclasses or #mainclasses == 0 then
+      vim.notify("No executable main classes found in this project.", vim.log.levels.WARN)
+      return
+    end
+
+    local new_configs = {}
+    local jdtls_mainclasses = {}
+    for _, mc in ipairs(mainclasses) do
+      jdtls_mainclasses[mc.mainClass] = true
+      table.insert(new_configs, {
+        type = "java",
+        request = "launch",
+        name = mc.mainClass,
+        mainClass = mc.mainClass,
+        projectName = mc.projectName,
+      })
+    end
+
+    local filepath = vim.fn.getcwd() .. "/.vscode/launch.json"
+
+    -- Merge with existing launch.json if present
+    if vim.fn.filereadable(filepath) == 1 then
+      local ok, existing = pcall(vim.fn.json_decode, vim.fn.readfile(filepath))
+      if ok and existing and existing.configurations then
+        local merged_count = 0
+        for _, cfg in ipairs(existing.configurations) do
+          if not jdtls_mainclasses[cfg.mainClass] then
+            -- Preserve manually added or non-java configs
+            table.insert(new_configs, cfg)
+            merged_count = merged_count + 1
+          end
+        end
+        if merged_count > 0 then
+          vim.notify(string.format("Preserved %d existing non-Java/manual config(s)", merged_count), vim.log.levels.INFO)
+        end
+      end
+    end
+
+    local vscode_dir = vim.fn.getcwd() .. "/.vscode"
+    if vim.fn.isdirectory(vscode_dir) == 0 then
+      vim.fn.mkdir(vscode_dir, "p")
+    end
+
+    local launch_json = {
+      version = "0.2.0",
+      configurations = new_configs,
+    }
+    local json_str = vim.json.encode(launch_json, { indent = "  " })
+    vim.fn.writefile(vim.split(json_str, "\n"), filepath)
+    vim.notify(string.format("Wrote %d config(s) to .vscode/launch.json (%d from jdtls, %d preserved)",
+      #new_configs, #mainclasses, #new_configs - #mainclasses), vim.log.levels.INFO)
+  end)
+end
+
 local function toggle_jdtls()
   _G.jdtls_enabled = not _G.jdtls_enabled
   if _G.jdtls_enabled then
@@ -227,6 +296,7 @@ return {
 
       -- Create command to toggle JDTLS
       vim.api.nvim_create_user_command("JdtlsToggle", toggle_jdtls, { desc = "Toggle JDTLS" })
+      vim.api.nvim_create_user_command("JdtGenLaunchJson", generate_launch_json, { desc = "Generate .vscode/launch.json from main classes" })
 
       -- Autostart jdtls for Java files (only when enabled)
       vim.api.nvim_create_autocmd("FileType", {
@@ -278,6 +348,9 @@ return {
           vim.keymap.set("n", "<leader>u", function()
             jdtls.super_implementation()
           end, opts)
+
+          -- Generate .vscode/launch.json from discovered main classes
+          -- vim.keymap.set("n", "<leader>dg", generate_launch_json, vim.tbl_extend("force", opts, { desc = "Generate launch.json" }))
 
           -- -- Jdtls commands
           -- vim.keymap.set("n", "<leader>jc", function()

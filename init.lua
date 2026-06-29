@@ -45,6 +45,9 @@ vim.cmd('source ~/.vimrc')
 -- lazy.nvim
 require("config.lazy")
 
+-- utils
+require("utils")
+
 -- coc -----------------
 if vim.g.coc_enable then
   vim.o.statusline = '%{coc#status()}%{get(b:,\'coc_current_function\',\'\')}'

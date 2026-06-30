@@ -5,6 +5,7 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
+      "MeanderingProgrammer/treesitter-modules.nvim",
     },
     opts = {
       ensure_installed = {
@@ -26,11 +27,17 @@ return {
       },
       sync_install = false,
       auto_install = true,
+    },
+  },
+  {
+    "MeanderingProgrammer/treesitter-modules.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
       highlight = {
         enable = true,
-        disable = function(lang, buf)
+        disable = function(ctx)
           local max_filesize = 100 * 1024
-          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(ctx.buf))
           if ok and stats and stats.size > max_filesize then
             return true
           end
@@ -40,46 +47,18 @@ return {
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = "<cr>",
-          node_incremental = "<cr>",
-          scope_incremental = "<s-cr>",
-          node_decremental = "<bs>",
+          -- init_selection = "<cr>",
+          -- node_incremental = "<cr>",
+          -- scope_incremental = "<s-cr>",
+          -- node_decremental = "<bs>",
+          init_selection = "<M-o>",      -- Alt+o 开始/扩大
+          node_incremental = "<M-o>",
+          node_decremental = "<M-i>",    -- Alt+i 缩小
+          scope_incremental = "<M-s>",   -- Alt+s 作用域
         },
       },
       indent = {
         enable = true,
-      },
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ["af"] = "@function.outer",
-            ["if"] = "@function.inner",
-            ["ac"] = "@class.outer",
-            ["ic"] = "@class.inner",
-          },
-        },
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            ["]m"] = "@function.outer",
-            ["]]"] = { query = "@class.outer", desc = "Next class start" },
-          },
-          goto_next_end = {
-            ["]M"] = "@function.outer",
-            ["]["] = "@class.outer",
-          },
-          goto_previous_start = {
-            ["[m"] = "@function.outer",
-            ["[["] = "@class.outer",
-          },
-          goto_previous_end = {
-            ["[M"] = "@function.outer",
-            ["[]"] = "@class.outer",
-          },
-        },
       },
     },
   },

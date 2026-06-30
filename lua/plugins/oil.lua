@@ -1,6 +1,14 @@
 return {
   {
-    'stevearc/oil.nvim',
+    "albenisolmos/telescope-oil.nvim",
+    config = function()
+      require("telescope").load_extension("oil")
+      vim.keymap.set("n", "<leader>fo", "<cmd>Telescope oil<CR>", { desc = "Fuzzy find directory (Oil)" })
+    end,
+    dependencies = { "nvim-telescope/telescope.nvim" },
+  },
+  {
+    "stevearc/oil.nvim",
     ---@module 'oil'
     ---@type oil.SetupOpts
     -- Optional dependencies
@@ -20,12 +28,21 @@ return {
     opts = {
       default_file_explorer = true,
 
-      delete_to_trash = false,
+      delete_to_trash = true,
 
       -- skip_confirm_for_simple_edits = true,
 
       view_options = {
         show_hidden = true,
+      },
+
+      columns = {
+        "icon", -- 文件类型图标（通常默认就有）
+        "permissions", -- Unix 权限，例如 rwxr-xr-x
+        "size", -- 文件大小（人类可读格式，如 1.2K, 3.4M）
+        -- "mtime", -- 修改时间
+        -- "ctime",     -- 状态变更时间
+        -- "atime",     -- 最后访问时间
       },
 
       -- float = {
@@ -49,7 +66,9 @@ return {
         ["R"] = "actions.refresh",
 
         ["<leader>cd"] = "actions.cd",
+
+        ["g?"] = { "actions.show_help", mode = "n" },
       },
     },
-  }
+  },
 }
